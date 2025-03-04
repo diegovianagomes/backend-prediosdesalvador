@@ -40,7 +40,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Hero Section para branding - opcional */}
+      {/* Hero Section para branding - opcional
       <Container className="pt-10">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
           Prédios de Salvador
@@ -48,7 +48,7 @@ export default async function HomePage() {
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Explorando a arquitetura da primeira capital do Brasil
         </p>
-      </Container>
+      </Container>*/}
 
       {/* Featured Posts - Grid de 2 colunas */}
       <Container className="mt-10">

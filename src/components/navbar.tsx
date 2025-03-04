@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Fragment } from "react";
@@ -15,20 +16,27 @@ interface MenuItem {
   children?: MenuItem[];
 }
 
-// Placeholder image handling
-const urlForImage = () => ({
-  src: "/default-logo.png",
+// Configuração para ambas as versões da logo
+const logoLight = {
+  src: "/pds-logo.svg",
   width: 120,
   height: 40,
-  alt: "Logo"
-});
+  alt: "Prédios de Salvador"
+};
+
+const logoDark = {
+  src: "/pds-logo-dark.svg", // Versão da logo para tema escuro
+  width: 120,
+  height: 40,
+  alt: "Prédios de Salvador"
+};
 
 interface NavbarProps {
   logo?: unknown;
   logoalt?: unknown;
 }
 
-export default function Navbar(props: NavbarProps) {
+export default function Navbar() {
   const leftmenu: MenuItem[] = [
     {
       label: "Home",
@@ -83,32 +91,26 @@ export default function Navbar(props: NavbarProps) {
                 </div>
                 <div className="flex w-full items-center justify-between md:w-auto">
                   <Link href="/" className="w-28 dark:hidden">
-                    {props.logo ? (
-                      <Image
-                        {...urlForImage()}
-                        alt="Prédios de Salvador"
-                        priority={true}
-                        sizes="(max-width: 640px) 100vw, 200px"
-                      />
-                    ) : (
-                      <span className="block text-center font-bold text-lg">
-                        Prédios de Salvador
-                      </span>
-                    )}
+                    {/* Logo para modo claro */}
+                    <Image
+                      src={logoLight.src}
+                      alt={logoLight.alt}
+                      width={logoLight.width}
+                      height={logoLight.height}
+                      priority={true}
+                      sizes="(max-width: 640px) 100vw, 200px"
+                    />
                   </Link>
                   <Link href="/" className="hidden w-28 dark:block">
-                    {props.logoalt ? (
-                      <Image
-                        {...urlForImage()}
-                        alt="Prédios de Salvador"
-                        priority={true}
-                        sizes="(max-width: 640px) 100vw, 200px"
-                      />
-                    ) : (
-                      <span className="block text-center font-bold text-lg">
-                        Prédios de Salvador
-                      </span>
-                    )}
+                    {/* Logo para modo escuro */}
+                    <Image
+                      src={logoDark.src}
+                      alt={logoDark.alt}
+                      width={logoDark.width}
+                      height={logoDark.height}
+                      priority={true}
+                      sizes="(max-width: 640px) 100vw, 200px"
+                    />
                   </Link>
                   <Disclosure.Button
                     aria-label="Toggle Menu"
@@ -206,7 +208,7 @@ const DropdownMenu = ({ menu, items, mobile }: DropdownMenuProps) => {
         <>
           <Menu.Button
             className={cx(
-              "flex items-center gap-x-1 rounded-md px-5 py-2 text-sm font-medium outline-none transition-all focus:outline-none focus-visible:text-indigo-500 focus-visible:ring-1 dark:focus-visible:bg-gray-800",
+              "flex items-center gap-x-1 rounded-md px-5 py-2 text-xl font-medium outline-none transition-all focus:outline-none focus-visible:text-indigo-500 focus-visible:ring-1 dark:focus-visible:bg-gray-800",
               open
                 ? "text-blue-500 hover:text-blue-500"
                 : "text-gray-600 dark:text-gray-400",

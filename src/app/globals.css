@@ -22,3 +22,93 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Estilos melhorados para o Swiper */
+.swiper {
+  position: relative;
+  padding: 0 20px;
+  margin: 0 -20px;
+  overflow: visible !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #333 !important;
+  background: rgba(255, 255, 255, 0.9);
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
+  transition: all 0.2s ease;
+  margin-top: -20px !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 20px !important;
+  font-weight: bold;
+}
+
+.swiper-button-next {
+  right: 0px !important;
+}
+
+.swiper-button-prev {
+  left: 0px !important;
+}
+
+.swiper-pagination {
+  position: relative;
+  bottom: 0 !important;
+  padding-top: 10px;
+}
+
+.swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: #999;
+  opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+  background: #333 !important;
+  opacity: 1;
+}
+
+/* Estilos para dark mode */
+.dark .swiper-button-next,
+.dark .swiper-button-prev {
+  color: #fff !important;
+  background: rgba(50, 50, 50, 0.9);
+}
+
+.dark .swiper-pagination-bullet {
+  background: #777;
+}
+
+.dark .swiper-pagination-bullet-active {
+  background: #fff !important;
+}
+
+/* Ajustes para o componente de zoom */
+[data-rmiz-modal-overlay="visible"] {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+[data-rmiz-btn-close] {
+  background: rgba(255, 255, 255, 0.8);
+  color: #000;
+  border-radius: 50%;
+}
+
+.dark [data-rmiz-btn-close] {
+  background: rgba(50, 50, 50, 0.8);
+  color: #fff;
+}

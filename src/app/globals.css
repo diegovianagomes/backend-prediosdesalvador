@@ -23,6 +23,22 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.text-brand-primary {
+  color: #1e40af; /* Azul */
+}
+
+.text-brand-primary:hover {
+  color: #2563eb; /* Azul mais claro */
+}
+
+.bg-slate-50 {
+  background-color: #f8fafc;
+}
+
+.dark .bg-slate-50 {
+  background-color: #1e293b;
+}
+
 /* Estilos melhorados para o Swiper */
 .swiper {
   position: relative;

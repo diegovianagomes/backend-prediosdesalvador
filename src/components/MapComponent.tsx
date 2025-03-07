@@ -3,52 +3,121 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 // Definição de tipos para os prédios
-type BuildingType = "historic" | "modern" | "tourist";
+type BuildingCategory = "berbert" | "diogenes" | "bina" | "lindo" | "outros";
 
 interface Building {
   id: number;
   name: string;
   description: string;
-  position: [number, number]; // [latitude, longitude]
-  type: BuildingType;
+  position: [number, number]; // [longitude, latitude]
+  category: BuildingCategory;
 }
 
-// Dados dos prédios
+// Função para categorizar os prédios com base no nome
+const getBuildingCategory = (name: string): BuildingCategory => {
+  const nameLower = name.toLowerCase();
+  
+  if (nameLower.includes('berb') || nameLower.includes('berbert')) {
+    return 'berbert';
+  } else if (nameLower.includes('diogenes')) {
+    return 'diogenes';
+  } else if (nameLower.includes('bina')) {
+    return 'bina';
+  } else if (nameLower.includes('lindo') || nameLower.includes('lindao')) {
+    return 'lindo';
+  } else {
+    return 'outros';
+  }
+};
+
+// Função para obter a cor do marcador com base na categoria
+const getMarkerColor = (category: BuildingCategory): string => {
+  switch(category) {
+    case 'berbert':
+      return 'red';
+    case 'diogenes':
+      return 'green';
+    case 'bina':
+      return 'blue';
+    case 'lindo':
+      return 'purple';
+    default:
+      return 'gray';
+  }
+};
+
+// Converter dados do GeoJSON para o formato de prédios
 const buildings: Building[] = [
+  // Vamos usar os primeiros 10 prédios do GeoJSON para teste
   {
     id: 1,
-    name: "Elevador Lacerda",
-    description: "Um dos principais cartões-postais de Salvador, inaugurado em 1873.",
-    position: [-12.974722, -38.513333],
-    type: "historic"
+    name: "CECI",
+    description: "Sem descrição",
+    position: [-38.5264054, -12.9933329],
+    category: getBuildingCategory("CECI")
   },
   {
     id: 2,
-    name: "Farol da Barra",
-    description: "Construído em 1698, é o farol mais antigo do Brasil.",
-    position: [-13.010278, -38.532222],
-    type: "historic"
+    name: "Carlos Costa Pinto",
+    description: "Sem descrição",
+    position: [-38.5273039, -12.9947912],
+    category: getBuildingCategory("Carlos Costa Pinto")
   },
   {
     id: 3,
-    name: "Igreja do Bonfim",
-    description: "Um dos principais símbolos religiosos de Salvador, construída em 1754.",
-    position: [-12.924722, -38.508889],
-    type: "historic"
+    name: "Conjunto de Casas Vitoria",
+    description: "Sem descrição",
+    position: [-38.5273603, -12.9942633],
+    category: getBuildingCategory("Conjunto de Casas Vitoria")
   },
   {
     id: 4,
-    name: "Shopping Barra",
-    description: "Um dos principais centros comerciais de Salvador.",
-    position: [-13.009722, -38.527778],
-    type: "modern"
+    name: "Predio_rosa",
+    description: "Sem descrição",
+    position: [-38.5265046, -12.9985429],
+    category: getBuildingCategory("Predio_rosa")
   },
   {
     id: 5,
-    name: "Mercado Modelo",
-    description: "Centro de artesanato e cultura popular da Bahia.",
-    position: [-12.973611, -38.513889],
-    type: "tourist"
+    name: "Rodin",
+    description: "Sem descrição",
+    position: [-38.5258314, -12.9983142],
+    category: getBuildingCategory("Rodin")
+  },
+  {
+    id: 16,
+    name: "Berbert",
+    description: "Sem descrição",
+    position: [-38.5280094, -13.0026944],
+    category: getBuildingCategory("Berbert")
+  },
+  {
+    id: 19,
+    name: "prediao lindo",
+    description: "Sem descrição",
+    position: [-38.5284955, -13.0014269],
+    category: getBuildingCategory("prediao lindo")
+  },
+  {
+    id: 34,
+    name: "Princesa de Diogenes",
+    description: "Sem descrição",
+    position: [-38.5319321, -13.0032001],
+    category: getBuildingCategory("Princesa de Diogenes")
+  },
+  {
+    id: 38,
+    name: "Bina",
+    description: "Sem descrição",
+    position: [-38.517483, -13.0077775],
+    category: getBuildingCategory("Bina")
+  },
+  {
+    id: 59,
+    name: "lindao",
+    description: "Sem descrição",
+    position: [-38.5135838, -12.9713919],
+    category: getBuildingCategory("lindao")
   }
 ];
 
@@ -102,8 +171,8 @@ export default function MapComponent() {
     buildings.forEach(building => {
       // Criar elemento para o marcador
       const markerElement = document.createElement('div');
-      markerElement.className = 'marker';
-      markerElement.style.backgroundImage = `url(/markers/${getMarkerColor(building.type)}-marker.png)`;
+      markerElement.className = `marker ${building.category}`;
+      markerElement.style.backgroundImage = `url(/markers/${getMarkerColor(building.category)}-marker.png)`;
       markerElement.style.width = '25px';
       markerElement.style.height = '41px';
       markerElement.style.backgroundSize = 'cover';
@@ -115,6 +184,7 @@ export default function MapComponent() {
           <div>
             <h3 style="font-weight: bold; font-size: 1.125rem;">${building.name}</h3>
             <p>${building.description}</p>
+            <p>Categoria: ${building.category}</p>
             <a 
               href="/predios/${building.id}" 
               style="color: #3b82f6; text-decoration: none; margin-top: 0.5rem; display: inline-block;"
@@ -128,27 +198,49 @@ export default function MapComponent() {
 
       // Adicionar marcador ao mapa
       new maplibregl.Marker(markerElement)
-        .setLngLat([building.position[1], building.position[0]]) // [longitude, latitude]
+        .setLngLat(building.position) // [longitude, latitude]
         .setPopup(popup)
         .addTo(map.current!);
     });
+
+    // Adicionar legenda ao mapa
+    const legend = document.createElement('div');
+    legend.className = 'map-legend';
+    legend.style.position = 'absolute';
+    legend.style.bottom = '20px';
+    legend.style.right = '10px';
+    legend.style.backgroundColor = 'white';
+    legend.style.padding = '10px';
+    legend.style.borderRadius = '5px';
+    legend.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)';
+    legend.style.zIndex = '1';
+    legend.innerHTML = `
+      <h4 style="margin-top: 0; margin-bottom: 8px; font-size: 14px;">Categorias de Prédios</h4>
+      <div style="display: flex; align-items: center; margin-bottom: 5px;">
+        <div style="background-image: url(/markers/red-marker.png); width: 15px; height: 24px; background-size: cover; margin-right: 5px;"></div>
+        <span style="font-size: 12px;">Berbert</span>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 5px;">
+        <div style="background-image: url(/markers/green-marker.png); width: 15px; height: 24px; background-size: cover; margin-right: 5px;"></div>
+        <span style="font-size: 12px;">Diogenes</span>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 5px;">
+        <div style="background-image: url(/markers/blue-marker.png); width: 15px; height: 24px; background-size: cover; margin-right: 5px;"></div>
+        <span style="font-size: 12px;">Bina</span>
+      </div>
+      <div style="display: flex; align-items: center; margin-bottom: 5px;">
+        <div style="background-image: url(/markers/purple-marker.png); width: 15px; height: 24px; background-size: cover; margin-right: 5px;"></div>
+        <span style="font-size: 12px;">Lindo/Lindão</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <div style="background-image: url(/markers/gray-marker.png); width: 15px; height: 24px; background-size: cover; margin-right: 5px;"></div>
+        <span style="font-size: 12px;">Outros</span>
+      </div>
+    `;
+    mapContainer.current?.appendChild(legend);
   }, [mapLoaded]);
 
-  // Função para determinar a cor do marcador com base no tipo
-  const getMarkerColor = (type: BuildingType): string => {
-    switch(type) {
-      case "historic":
-        return "red";
-      case "modern":
-        return "blue";
-      case "tourist":
-        return "green";
-      default:
-        return "blue";
-    }
-  };
-
   return (
-    <div ref={mapContainer} style={{ height: "100%", width: "100%" }} />
+    <div ref={mapContainer} style={{ height: "100%", width: "100%", position: "relative" }} />
   );
 }

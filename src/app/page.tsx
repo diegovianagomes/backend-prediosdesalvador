@@ -123,9 +123,18 @@ export default async function HomePage() {
           ))}
         </div>
       </Container>
+      
+      <Container className="pt-10 ">
+        <h1 className="text-xl md:text-xl font-bold tracking-tight mb-2">
+          Veja aqui mais artigos
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          Explorando a arquitetura da primeira capital do Brasil
+        </p>
+      </Container>
 
       {/* Regular Posts - Grid tripla */}
-      <Container className="mt-16">
+      <Container >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {regularPosts.map((post) => (
             <div key={post._id} className="group">
@@ -209,7 +218,7 @@ function getCategoryColor(category: string, definedColor?: string): string {
   const colorMap: Record<string, string> = {
     "Histórico": "text-blue-600",
     "Colonial": "text-green-600",
-    "Moderno": "text-purple-600", 
+    "Modernista": "text-purple-600", 
     "Contemporâneo": "text-yellow-600",
     "Barroco": "text-red-600",
     "Neoclássico": "text-indigo-600",

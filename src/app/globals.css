@@ -128,3 +128,14 @@ body {
   background: rgba(50, 50, 50, 0.8);
   color: #fff;
 }
+
+.maplibregl-popup-content {
+  padding: 15px;
+  border-radius: 8px;
+  max-width: 300px;
+}
+
+.maplibregl-popup-close-button {
+  font-size: 16px;
+  padding: 5px;
+}

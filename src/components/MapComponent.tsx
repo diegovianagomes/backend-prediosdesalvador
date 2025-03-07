@@ -1,19 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { useEffect } from "react";
-import L from "leaflet";
-
-// Corrigir o problema dos ícones do Leaflet no Next.js
-const fixLeafletIcon = () => {
-  // @ts-expect-error
-  delete L.Icon.Default.prototype._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "/leaflet/marker-icon-2x.png",
-    iconUrl: "/leaflet/marker-icon.png",
-    shadowUrl: "/leaflet/marker-shadow.png",
-  });
-};
+import React, { useEffect, useRef, useState } from 'react';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 // Definição de tipos para os prédios
 type BuildingType = "historic" | "modern" | "tourist";
@@ -22,11 +9,11 @@ interface Building {
   id: number;
   name: string;
   description: string;
-  position: [number, number]; // Definido como tupla com 2 elementos
+  position: [number, number]; // [latitude, longitude]
   type: BuildingType;
 }
 
-// Dados dos prédios (substitua com seus dados reais)
+// Dados dos prédios
 const buildings: Building[] = [
   {
     id: 1,
@@ -66,70 +53,102 @@ const buildings: Building[] = [
 ];
 
 export default function MapComponent() {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
   useEffect(() => {
-    fixLeafletIcon();
+    if (map.current || !mapContainer.current) return;
+    
+    // Chave do MapTiler
+    const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY || 'UorlvmDuNcDc8pGbxuFY';
+    
+    // Inicializar o mapa
+    map.current = new maplibregl.Map({
+      container: mapContainer.current,
+      style: `https://api.maptiler.com/maps/a32b4ca2-0fe6-4284-8d16-b2b2ca536839/style.json?key=${mapTilerKey}`,
+      center: [-38.51083, -12.971111], // [longitude, latitude]
+      zoom: 13
+    });
+
+    // Adicionar controles de navegação
+    map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+    
+    // Adicionar escala
+    map.current.addControl(new maplibregl.ScaleControl({
+      maxWidth: 200,
+      unit: 'metric'
+    }), 'bottom-left');
+
+    // Quando o mapa estiver carregado, adicionar marcadores
+    map.current.on('load', () => {
+      setMapLoaded(true);
+    });
+
+    // Limpar ao desmontar
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
   }, []);
 
-  // Centro do mapa em Salvador (definido como tupla)
-  const center: [number, number] = [-12.971111, -38.51083];
+  // Adicionar marcadores quando o mapa estiver carregado
+  useEffect(() => {
+    if (!mapLoaded || !map.current) return;
+
+    // Adicionar marcadores para cada prédio
+    buildings.forEach(building => {
+      // Criar elemento para o marcador
+      const markerElement = document.createElement('div');
+      markerElement.className = 'marker';
+      markerElement.style.backgroundImage = `url(/markers/${getMarkerColor(building.type)}-marker.png)`;
+      markerElement.style.width = '25px';
+      markerElement.style.height = '41px';
+      markerElement.style.backgroundSize = 'cover';
+      markerElement.style.cursor = 'pointer';
+
+      // Criar popup
+      const popup = new maplibregl.Popup({ offset: 25 })
+        .setHTML(`
+          <div>
+            <h3 style="font-weight: bold; font-size: 1.125rem;">${building.name}</h3>
+            <p>${building.description}</p>
+            <a 
+              href="/predios/${building.id}" 
+              style="color: #3b82f6; text-decoration: none; margin-top: 0.5rem; display: inline-block;"
+              onmouseover="this.style.textDecoration='underline'"
+              onmouseout="this.style.textDecoration='none'"
+            >
+              Ver detalhes
+            </a>
+          </div>
+        `);
+
+      // Adicionar marcador ao mapa
+      new maplibregl.Marker(markerElement)
+        .setLngLat([building.position[1], building.position[0]]) // [longitude, latitude]
+        .setPopup(popup)
+        .addTo(map.current!);
+    });
+  }, [mapLoaded]);
 
   // Função para determinar a cor do marcador com base no tipo
-  const getMarkerIcon = (type: BuildingType) => {
-    let color = "blue";
-    
+  const getMarkerColor = (type: BuildingType): string => {
     switch(type) {
       case "historic":
-        color = "red";
-        break;
+        return "red";
       case "modern":
-        color = "blue";
-        break;
+        return "blue";
       case "tourist":
-        color = "green";
-        break;
+        return "green";
+      default:
+        return "blue";
     }
-    
-    return new L.Icon({
-      iconUrl: `/markers/${color}-marker.png`,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
   };
 
   return (
-    <MapContainer 
-      center={center} 
-      zoom={13} 
-      style={{ height: "100%", width: "100%" }}
-      scrollWheelZoom={true}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      
-      {buildings.map((building) => (
-        <Marker 
-          key={building.id} 
-          position={building.position}
-          icon={getMarkerIcon(building.type)} // Descomentado para usar a função
-        >
-          <Popup>
-            <div>
-              <h3 className="font-bold text-lg">{building.name}</h3>
-              <p>{building.description}</p>
-              <a 
-                href={`/predios/${building.id}`} 
-                className="text-blue-500 hover:underline mt-2 inline-block"
-              >
-                Ver detalhes
-              </a>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    <div ref={mapContainer} style={{ height: "100%", width: "100%" }} />
   );
 }

@@ -19,14 +19,14 @@ interface MenuItem {
 // Configuração para ambas as versões da logo
 const logoLight = {
   src: "/pds-logo.svg",
-  width: 120,
+  width: 100,
   height: 40,
   alt: "Prédios de Salvador"
 };
 
 const logoDark = {
   src: "/pds-logo-dark.svg", // Versão da logo para tema escuro
-  width: 120,
+  width: 100,
   height: 40,
   alt: "Prédios de Salvador"
 };
@@ -43,15 +43,15 @@ export default function Navbar() {
       href: "/"
     },
     {
-      label: "Sobre",
-      href: "/sobre"
+      label: "Mapa",
+      href: "/mapa"
     }
   ];
 
   const rightmenu: MenuItem[] = [
     {
-      label: "Mapa",
-      href: "/mapa"
+      label: "Sobre",
+      href: "/sobre"
     },
     {
       label: "Contato",
@@ -63,12 +63,12 @@ export default function Navbar() {
 
   return (
     <Container>
-      <nav>
+      <nav className="border-b-2 mb-0 border-[#9CC0E9] dark:border-cyan-500">
         <Disclosure>
           {({ open }) => (
             <>
-              <div className="flex flex-wrap justify-between md:flex-nowrap md:gap-10">
-                <div className="order-1 hidden w-full flex-col items-center justify-start md:order-none md:flex md:w-auto md:flex-1 md:flex-row md:justify-end">
+              <div className="mb-8 flex flex-wrap justify-between md:flex-nowrap md:gap-16">
+                <div className="order-1 hidden w-full flex-col items-center gap-8 justify-start md:order-none md:flex md:w-auto md:flex-1 md:flex-row md:justify-end ">
                   {leftmenu.map((item, index) => (
                     <Fragment key={`${item.label}${index}`}>
                       {item.children ? (
@@ -80,7 +80,7 @@ export default function Navbar() {
                       ) : (
                         <Link
                           href={item.href}
-                          className="px-5 py-2 text-sm font-medium text-gray-600 hover:text-blue-500 dark:text-gray-400"
+                          className="px-5 py-2 text-xl font-sans font-semibold hover:underline hover:underline-offset-8  text-[#9CC0E9] hover:text-blue-500 dark:text-gray-400"
                           target={item.external ? "_blank" : undefined}
                           rel={item.external ? "noopener" : undefined}>
                           {item.label}
@@ -136,7 +136,7 @@ export default function Navbar() {
                   </Disclosure.Button>
                 </div>
 
-                <div className="order-2 hidden w-full flex-col items-center justify-start md:order-none md:flex md:w-auto md:flex-1 md:flex-row">
+                <div className="order-2 hidden w-full flex-col items-center justify-start gap-8 md:order-none md:flex md:w-auto md:flex-1 md:flex-row">
                   {rightmenu.map((item, index) => (
                     <Fragment key={`${item.label}${index}`}>
                       {item.children ? (
@@ -148,7 +148,7 @@ export default function Navbar() {
                       ) : (
                         <Link
                           href={item.href}
-                          className="px-5 py-2 text-sm font-medium text-gray-600 hover:text-blue-500 dark:text-gray-400"
+                          className="px-5 py-2 text-xl font-sans font-semibold hover:underline hover:underline-offset-8  text-[#9CC0E9] hover:text-blue-500 dark:text-gray-400"
                           target={item.external ? "_blank" : undefined}
                           rel={item.external ? "noopener" : undefined}>
                           <span>{item.label}</span>

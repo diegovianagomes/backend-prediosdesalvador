@@ -46,9 +46,8 @@ const getMarkerColor = (category: BuildingCategory): string => {
   }
 };
 
-// Converter dados do GeoJSON para o formato de prédios
 const buildings: Building[] = [
-  // Vamos usar os primeiros 10 prédios do GeoJSON para teste
+  // Teste alguns predios
   {
     id: 1,
     name: "CECI",

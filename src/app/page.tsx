@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import Image from "next/image";
 import { type SanityDocument } from "next-sanity";
@@ -22,7 +23,7 @@ const POSTS_QUERY = `*[
   title, 
   slug, 
   publishedAt,
-  excerpt,
+  excerpt,  
   mainImage,
   "categories": categories[]->title,
   "categoryColors": categories[]->color,
@@ -39,7 +40,7 @@ export default async function HomePage() {
   const regularPosts = posts.slice(2, 8);
 
   return (
-    <div>
+    <div className="font-[Poppins]">
       {/* Hero Section para branding - opcional
       <Container className="pt-10">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
@@ -50,95 +51,122 @@ export default async function HomePage() {
         </p>
       </Container>*/}
 
-      {/* Featured Posts - Grid de 2 colunas */}
-      <Container className="mt-10">
-        <div className="grid md:grid-cols-2 gap-10">
-          {featuredPosts.map((post) => (
-            <div key={post._id} className="group">
-              <div className="overflow-hidden rounded-md">
-                {post.mainImage ? (
-                  <Link href={`/${post.slug.current}`}>
-                    <Image 
-                      src={urlFor(post.mainImage).width(600).height(400).url()}
-                      alt={post.title}
-                      width={600}
-                      height={400}
-                      className="object-cover h-64 w-full transition-all duration-300 group-hover:scale-105"
-                    />
-                  </Link>
-                ) : (
-                  <Link href={`/${post.slug.current}`}>
-                    <div className="bg-gray-200 dark:bg-gray-800 h-64 w-full flex items-center justify-center">
-                      <span className="text-gray-500 dark:text-gray-400">Sem imagem</span>
-                    </div>
-                  </Link>
-                )}
-              </div>
-              <div className="mt-4">
-                {post.categories && (
-                  <div className="mb-2">
-                    {post.categories.map((category: string, i: number) => (
-                      <span 
-                        key={i}
-                        className={cx(
-                          "inline-block text-xs font-medium uppercase tracking-wider mr-2",
-                          getCategoryColor(category, post.categoryColors?.[i])
-                        )}>
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <h2 className="text-xl md:text-2xl font-semibold leading-tight">
-                  <Link href={`/${post.slug.current}`} className="hover:text-blue-500 transition-colors">
-                    {post.title}
-                  </Link>
-                </h2>
-                <div className="flex items-center mt-3 space-x-3 text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center space-x-2">
-                    {post.author?.image ? (
-                      <Image
-                        src={urlFor(post.author.image).width(24).height(24).url()}
-                        alt={post.author.name}
-                        width={24}
-                        height={24}
-                        className="rounded-full"
-                      />
+      {/* Featured Post - Product Card Style */}
+      <Container className="mt-10 pb-4">
+        {featuredPosts.length > 0 && (
+          <div className="pb-8 max-w mx-auto">
+            {(() => {
+              const post = featuredPosts[0];
+              return (
+                <div key={post._id} className="group border-2 border-black  rounded-lg overflow-hidden flex flex-col md:flex-row bg-white dark:bg-gray-900 dark:border-gray-800 hover:shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-shadow duration-300">
+                  {/* Left side - Image */}
+                  <div className="w-full md:w-1/2">
+                    {post.mainImage ? (
+                      <Link href={`/${post.slug.current}`} className="block h-full  md:border-r-2">
+                        <Image 
+                          src={urlFor(post.mainImage).width(600).height(600).url()}
+                          alt={post.title}
+                          width={600}
+                          height={600}
+                          className="object-cover w-full h-full min-h-[300px]"
+                        />
+                      </Link>
                     ) : (
-                      <span className="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700"></span>
+                      <Link href={`/${post.slug.current}`} className="block h-full">
+                        <div className="bg-gray-200 dark:bg-gray-800 h-full min-h-[300px] w-full flex items-center justify-center">
+                          <span className="text-gray-500 dark:text-gray-400">Sem imagem</span>
+                        </div>
+                      </Link>
                     )}
-                    <span className="text-sm">{post.author?.name || "Autor desconhecido"}</span>
                   </div>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">•</span>
-                  <time className="text-sm">
-                    {new Date(post.publishedAt).toLocaleDateString('pt-BR', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </time>
+                  
+                  {/* Right side - Content */}
+                  <div className="w-full md:w-full p-6 flex flex-col justify-between">
+
+                    <div>
+                      {post.categories && (
+                        <div className="mb-2">
+                          {post.categories.map((category: string, i: number) => (
+                            <span 
+                              key={i}
+                              className={cx(
+                                "inline-block text-xs font-medium uppercase tracking-wider mr-2",
+                                getCategoryColor(category, post.categoryColors?.[i])
+                              )}>
+                              {category}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <h2 className="text-[32px] mb-2 font-[Abril_Fatface] tracking-wider">
+                        <Link href={`/${post.slug.current}`}>
+                          {post.title}
+                        </Link>
+                      </h2>
+                      
+                      {/* Updated excerpt handling */}
+                      {post.excerpt && (
+                        <p className="text-gray-600 dark:text-gray-300 mt-4 mb-4  text-sm line-clamp-3">
+                          {typeof post.excerpt === 'string' 
+                            ? post.excerpt 
+                            : Array.isArray(post.excerpt) 
+                              ? post.excerpt.map((block: any) => block.children?.map((child: any) => child.text).join(' ')).join(' ')
+                              : ''}
+                        </p>
+                      )}
+                      
+                      
+                      
+                      
+                    </div>
+                    
+                    <div className="mt-6">
+                      {/* Author and date in one line */}
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                        {post.author?.image ? (
+                          <Image
+                            src={urlFor(post.author.image).width(24).height(24).url()}
+                            alt={post.author.name}
+                            width={24}
+                            height={24}
+                            className="rounded-full mr-2"
+                          />
+                        ) : (
+                          <span className="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 mr-2"></span>
+                        )}
+                        <span className="font-medium">{post.author?.name || "Autor desconhecido"}</span>
+                        <span className="mx-2">•</span>
+                        <time>
+                          {new Date(post.publishedAt).toLocaleDateString('pt-BR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          })}
+                        </time>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })()}
+          </div>
+        )}
       </Container>
-      
-      <Container className="pt-10 ">
-        <h1 className="text-xl md:text-xl font-bold tracking-tight mb-2">
-          Veja aqui mais artigos
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Explorando a arquitetura da primeira capital do Brasil
-        </p>
+
+      <Container>
+        <div>
+          <h2 className="text-2xl font-semi tracking-tight mb-4">
+            Ultimas postagens
+          </h2>
+        </div>
       </Container>
 
       {/* Regular Posts - Grid tripla */}
       <Container >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {regularPosts.map((post) => (
-            <div key={post._id} className="group">
-              <div className="overflow-hidden rounded-md">
+            <div key={post._id} className="group border-2 rounded bg-[#FFFFFF] hover:shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-shadow duration-300">
+              <div className="overflow-hidden rounded-t-sm border-b-2">
                 {post.mainImage ? (
                   <Link href={`/${post.slug.current}`}>
                     <Image 
@@ -164,7 +192,7 @@ export default async function HomePage() {
                       <span 
                         key={i}
                         className={cx(
-                          "inline-block text-xs font-medium uppercase tracking-wider mr-2",
+                          "ml-4 inline-block text-xs  uppercase tracking-wider mr-2",
                           getCategoryColor(category, post.categoryColors?.[i])
                         )}>
                         {category}
@@ -172,12 +200,12 @@ export default async function HomePage() {
                     ))}
                   </div>
                 )}
-                <h3 className="text-lg font-medium leading-tight">
+                <h3 className="ml-4 font-[Abril_Fatface] tracking-wider text-[18px] leading-tight">
                   <Link href={`/${post.slug.current}`} className="hover:text-blue-500 transition-colors">
                     {post.title}
                   </Link>
                 </h3>
-                <div className="flex items-center mt-2 space-x-3 text-gray-500 dark:text-gray-400">
+                <div className="ml-4 pb-4 flex items-center mt-2 space-x-3 text-gray-500 dark:text-gray-400">
                   <div className="flex items-center space-x-2">
                     {post.author?.image ? (
                       <Image

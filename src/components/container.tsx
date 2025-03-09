@@ -12,7 +12,7 @@ export default function Container(props:  ContainerProps) {
     <div
       className={`container px-8 mx-auto xl:px-5 ${
         props.large ? "max-w-screen-xl" : "max-w-screen-lg"
-      } ${!props.alt && "py-5 lg:py-8"} ${props.className || ""}`}>
+      } ${!props.alt && "py-0 lg:py-0"} ${props.className || ""}`}>
       {props.children}
     </div>
   );

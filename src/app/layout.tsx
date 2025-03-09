@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
+import { Abril_Fatface } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+
+// Add the new fonts
+const poppins = Poppins({ 
   subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins"
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const abril = Abril_Fatface({
   subsets: ["latin"],
+  weight: "400",
+  variable: "--font-abril"
 });
 
 export const metadata: Metadata = {
@@ -26,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={` ${poppins.variable} ${abril.variable} antialiased`}
       >
         <Navbar />
         {children}

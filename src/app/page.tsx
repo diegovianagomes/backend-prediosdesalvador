@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import Image from "next/image";
@@ -7,37 +8,57 @@ import Container from "@/components/container";
 import { cx } from "@/utils/all";
 import imageUrlBuilder from "@sanity/image-url";
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import Pagination from "@/components/Pagination";
 
+interface Post extends SanityDocument {
+  title: string;
+  slug: { current: string };
+  publishedAt: string;
+  excerpt?: string | any[];
+  mainImage?: any;
+  categories?: string[];
+  categoryColors?: string[];
+  author?: { name: string; image?: any };
+}
 // Configuração do builder de imagens
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
+const POSTS_PER_PAGE = 6; // 6 posts per page (showing 2 featured + 6 regular)
+
 // Query para buscar posts com categorias e autores
-const POSTS_QUERY = `*[
-  _type == "post"
-  && defined(slug.current)
-]|order(publishedAt desc)[0...8]{
-  _id, 
-  title, 
-  slug, 
-  publishedAt,
-  excerpt,  
-  mainImage,
-  "categories": categories[]->title,
-  "categoryColors": categories[]->color,
-  "author": author->{name, image}
+const POSTS_QUERY = `{
+  "posts": *[
+    _type == "post"
+    && defined(slug.current)
+  ]|order(publishedAt desc)[0...8]{
+    _id, 
+    title, 
+    slug, 
+    publishedAt,
+    excerpt,  
+    mainImage,
+    "categories": categories[]->title,
+    "categoryColors": categories[]->color,
+    "author": author->{name, image}
+  },
+  "total": count(*[_type == "post" && defined(slug.current)])
 }`;
 
 const options = { next: { revalidate: 30 } };
 
-export default async function HomePage() {
-  const posts = await client.fetch<SanityDocument[]>(POSTS_QUERY, {}, options);
+export default async function HomePage({ searchParams }: { searchParams: { page?: string } }) {
+  const pageNumber = parseInt(searchParams.page || '1');
+  const { posts, total } = await client.fetch(POSTS_QUERY, {}, options);
   
+  // Calculate total pages
+  const totalPages = Math.ceil((total - 2) / POSTS_PER_PAGE) + 1; // First page has 2 featured posts
+    
   // Separar posts - 2 para destaque, resto para grid tripla
-  const featuredPosts = posts.slice(0, 2);
-  const regularPosts = posts.slice(2, 8);
+  const featuredPosts = pageNumber === 1 ? posts.slice(0, 2) : [];
+  const regularPosts = pageNumber === 1 ? posts.slice(2) : posts;
 
   return (
     <div className="font-[Poppins]">
@@ -163,8 +184,8 @@ export default async function HomePage() {
 
       {/* Regular Posts - Grid tripla */}
       <Container >
-        <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {regularPosts.map((post) => (
+        <div className="pt-4 pb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          {regularPosts.map((post: Post) => (
             <div key={post._id} className="group border-2 rounded bg-[#FFFFFF] hover:shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-shadow duration-300">
               <div className="overflow-hidden rounded-t-sm border-b-2">
                 {post.mainImage ? (
@@ -232,6 +253,13 @@ export default async function HomePage() {
               </div>
             </div>
           ))}
+        </div>
+      </Container>
+
+      {/* Pagination - Updated to use client component */}
+      <Container className="mt-8 mb-16">
+        <div className="flex justify-center">
+          <Pagination totalPages={totalPages} currentPage={pageNumber} />
         </div>
       </Container>
     </div>

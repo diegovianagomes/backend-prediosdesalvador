@@ -1,58 +1,41 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
+"use client"
 
-import { Disclosure } from "@headlessui/react";
-import Container from "@/components/container";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
-interface MenuItem {
-  label: string;
-  href: string;
-  external?: boolean;
-  badge?: string;
-  children?: MenuItem[];
-}
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Disclosure } from "@headlessui/react"
+import Container from "@/components/container"
 
 export default function Navbar() {
-  const pathname = usePathname();
-  
-  const menuItems: MenuItem[] = [
-    {
-      label: "Página Inicial",
-      href: "/"
-    },
-    {
-      label: "Mapa",
-      href: "/mapa"
-    },
-    {
-      label: "Artigos",
-      href: "/artigos"
-    },
-    {
-      label: "Busca",
-      href: "/busca"
-    },
-    {
-      label: "Sobre",
-      href: "/sobre"
-    },
-    {
-      label: "Contato",
-      href: "/contato"
+  const pathname = usePathname()
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
     }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+  
+  const menuItems = [
+    { label: "Página Inicial", href: "/" },
+    { label: "Mapa", href: "/mapa" },
+    { label: "Estilos Arquitetônicos", href: "/estilos-arquitetonicos" },
+    { label: "Sobre", href: "/sobre" },
+    { label: "Contato", href: "/contato" }
   ];
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800">
-      {/* Main navbar */}
+    <div className={`w-full bg-white dark:bg-gray-800 sticky top-0 z-50 transition-all duration-200 ${isScrolled ? 'bg-white/80 backdrop-blur-md' : ''}`}>
       <div className="border-b border-black">
         <Container>
           <Disclosure>
             {({ open }) => (
               <>
-                <div className="flex items-center justify-between py-4">
+                <div className="flex h-16 items-center justify-between">
                   {/* Logo */}
                   <Link href="/" className="text-2xl font-[Abril_FatFace] tracking-wider hover:underline hover:underline-offset-8">
                     Prédios de Salvador
@@ -95,7 +78,7 @@ export default function Navbar() {
                       <Link
                         key={`mobile-${item.label}${index}`}
                         href={item.href}
-                        className={`block rowpx-4 py-2 text-gray-700 hover:underline underline-offset-8 rounded-md
+                        className={`block px-4 py-2 text-gray-700 hover:underline hover:underline-offset-8 rounded-md
                           ${pathname === item.href ? 'underline underline-offset-8' : ''}`}
                       >
                         {item.label}

@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <div className="bg-black border-t-2 pt-2 sm:pt-2 lg:pt-2">
+    <div className="bg-[#527A8F] border-t-2 border-[#B0D0E0] pt-2 sm:pt-2 lg:pt-2">
       <footer className="mx-auto max-w-screen-2xl px-4 md:px-8">
         <div className="flex flex-col items-center  pt-4">
           

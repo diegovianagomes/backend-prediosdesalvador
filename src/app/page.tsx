@@ -20,13 +20,22 @@ interface Post extends SanityDocument {
   categoryColors?: string[];
   author?: { name: string; image?: any };
 }
+
+// Interface para categorias
+interface Category {
+  _id: string;
+  title: string;
+  color?: string;
+  description?: string;
+}
+
 // Configuração do builder de imagens
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
-const POSTS_PER_PAGE = 6; // 6 posts per page (showing 2 featured + 6 regular)
+const POSTS_PER_PAGE = 4; // 6 posts per page (showing 2 featured + 6 regular)
 
 // Query para buscar posts com categorias e autores
 const POSTS_QUERY = `{
@@ -47,11 +56,29 @@ const POSTS_QUERY = `{
   "total": count(*[_type == "post" && defined(slug.current)])
 }`;
 
+// Query para buscar categorias
+const CATEGORIES_QUERY = `*[_type == "category"] {
+  _id,
+  title,
+  color,
+  description
+}`;
+
 const options = { next: { revalidate: 30 } };
 
-export default async function HomePage({ searchParams }: { searchParams: { page?: string } }) {
-  const pageNumber = parseInt(searchParams.page || '1');
-  const { posts, total } = await client.fetch(POSTS_QUERY, {}, options);
+export default async function HomePage({ searchParams }: { searchParams: { page?: string, category?: string } }) {
+  const params = await searchParams;
+  const pageNumber = parseInt(params.page || '1');
+  const currentCategory = params.category || '';
+  
+  // Buscar posts e categorias em paralelo
+  const [postsData, categoriesData] = await Promise.all([
+    client.fetch(POSTS_QUERY, {}, options),
+    client.fetch(CATEGORIES_QUERY, {}, options)
+  ]);
+  
+  const { posts, total } = postsData;
+  const categories: Category[] = categoriesData;
   
   // Calculate total pages
   const totalPages = Math.ceil((total - 2) / POSTS_PER_PAGE) + 1; // First page has 2 featured posts
@@ -62,16 +89,8 @@ export default async function HomePage({ searchParams }: { searchParams: { page?
 
   return (
     <div className="font-[Poppins]">
-      {/* Hero Section para branding - opcional
-      <Container className="pt-10">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
-          Prédios de Salvador
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Explorando a arquitetura da primeira capital do Brasil
-        </p>
-      </Container>*/}
-
+      {/* Hero Section para branding - opcional */}
+      
       {/* Featured Post - Product Card Style */}
       <Container className="mt-10 pb-4">
         {featuredPosts.length > 0 && (
@@ -79,7 +98,7 @@ export default async function HomePage({ searchParams }: { searchParams: { page?
             {(() => {
               const post = featuredPosts[0];
               return (
-                <div key={post._id} className="group border-2 border-black  rounded-lg overflow-hidden flex flex-col md:flex-row bg-white dark:bg-gray-900 dark:border-gray-800 hover:shadow-[8px_8px_0px_rgba(0,0,0,1)] transition-shadow duration-300">
+                <div key={post._id} className="group border-2 border-[#527A8F]  rounded-lg overflow-hidden flex flex-col md:flex-row bg-white/70 dark:bg-gray-900/80 dark:border-4 dark:border-[#3A5B70] dark:shadow-[6px_6px_0px_#3A5B70] dark:hover:shadow-[8px_8px_0px_#3A5B70] hover:shadow-[8px_8px_0px] hover:shadow-[#527A8F] transition-shadow duration-300">
                   {/* Left side - Image */}
                   <div className="w-full md:w-1/2">
                     {post.mainImage ? (
@@ -135,10 +154,6 @@ export default async function HomePage({ searchParams }: { searchParams: { page?
                               : ''}
                         </p>
                       )}
-                      
-                      
-                      
-                      
                     </div>
                     
                     <div className="mt-6">
@@ -174,10 +189,32 @@ export default async function HomePage({ searchParams }: { searchParams: { page?
         )}
       </Container>
 
+      {/* Barra de categorias */}
+      <Container>
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold tracking-tight mb-4">
+            Categorias
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {categories.map((category) => (
+              <Link 
+                key={category._id}
+                href={`/?category=${category._id}`}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+                  ${category._id === currentCategory ? 'bg-[#527A8F] text-white  ' : 
+                    category.color ? `text-${category.color}-600 hover:bg-white/70` : 'text-blue-600 hover:bg-gray-100'}`}
+              >
+                {category.title}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </Container>
+
       <Container>
         <div>
-          <h2 className="text-2xl font-semi tracking-tight mb-4">
-            Ultimas postagens
+          <h2 className="text-xl font-semi tracking-tight mb-4">
+            Artigos Recentes
           </h2>
         </div>
       </Container>

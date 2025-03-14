@@ -75,7 +75,7 @@ export default function Pagination({
       
       <button 
         onClick={() => handlePageChange(currentPage + 1)}
-        className={`flex items-center justify-center w-10 h-10 border-2 border-black rounded-md ml-2 
+        className={`flex items-center justify-center w-10 h-10 border-2 border-[#527A8F] rounded-md ml-2 
                   ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'} 
                   transition-colors duration-200`}
         disabled={currentPage >= totalPages}
